@@ -1,54 +1,115 @@
 
-function RetrieveEventInfo(){
-	console.log("check user");
-	Parse.initialize("wxaNxdtmCOUJm8QHPYr8khYkFJiBTMvEnv1jCDZg", "OuSaCarL4ltnPsuwptJMBvoZ7v3071MCUE7Y5MfD");
+function check_hangoutid_for_each_role(){
 
+	var PM_id = gapi.hangout.data.getValue("RoleID_PM");
+	console.log("PM_id is " + PM_id);
+	var LO_id = gapi.hangout.data.getValue("RoleID_LO");
+	console.log("LO_id is " + LO_id);
+	var MG_id = gapi.hangout.data.getValue("RoleID_MG");
+	console.log("MG_id is " + MG_id);
+	var MO_id = gapi.hangout.data.getValue("RoleID_MO");
+	console.log("MO_id is " + MO_id);
+	var RPM_id = gapi.hangout.data.getValue("RoleID_RPM");
+	console.log("RPM_id is " + RPM_id);
+	var RLO_id = gapi.hangout.data.getValue("RoleID_RLO");
+	console.log("RLO_id is " + RLO_id);
+} 
+
+
+function Mixidea_Event(){
+
+	Parse.initialize("wxaNxdtmCOUJm8QHPYr8khYkFJiBTMvEnv1jCDZg", "OuSaCarL4ltnPsuwptJMBvoZ7v3071MCUE7Y5MfD");
 	var appData = gadgets.views.getParams()['appData'];	
 	console.log(appData);
 	var appData_split = appData.split("_");
-	var user_id = appData_split[0];
-	var event_id = appData_split[1];
-	console.log(user_id);
-	console.log(event_id);
 
-	var title_element = document.getElementById('feed_title');
-	var event_element = document.getElementById('event_table');
+	this.info = {};
+	this.info.user_id = appData_split[0];
+	this.info.event_id = appData_split[1];
+	console.log(this.info.user_id);
+	console.log(this.info.event_id);
 
-	var query_user = new Parse.Query(MixideaUser);
-	query_user.get(user_id).then(function(user_data){
-		var first_name = user_data.get("FirstName");
-		var last_name = user_data.get("LastName");
-		title_element.innerHTML="<h1>" + first_name + last_name + " have succesfully created a followtin event</h1>";
-		var query_event = new Parse.Query(MixideaEvent);
-		return query_event.get(event_id);
-	}).then(function(event_obj){
-		var hangout_url = gapi.hangout.getHangoutUrl();
+	this.obj = {};	
+	this.obj.event = null;
+	this.info.event_type = "";
+	this.SetEventURL();
+}
+
+Mixidea_Event.prototype.SetEventURL = function(){
+
+	var self = this;
+
+	var query_event = new Parse.Query(MixideaEvent);
+	query_event.get(self.info.event_id).then(function(event_obj){
+		self.obj.event = event_obj;
+
+		var hangout_url = event_obj.get("hangout_url");
 		console.log(hangout_url);
-		event_obj.set("hangout_url",hangout_url);
-
-		var event_title = event_obj.get("title");
-		var event_description = event_obj.get("description");
-		var event_title = event_obj.get("title");
-		var event_date = event_obj.get("date");
-		var event_time = event_obj.get("StartTime");
-
-		var html_table_open = "<table border = '1'>"
-		var html_event_title = "<tr><td>event name </td><td>" + event_title + "</td></tr>";
-		var html_event_description = "<tr><td>event description </td><td>" + event_description + "</td></tr>";
-		var html_event_schedule = "<tr><td>event schedule </td><td>" + event_date +  event_time + "</td></tr>";
-		var html_table_close = "</table>"
-		event_element.innerHTML = html_table_open + html_event_title + html_event_description +  html_event_schedule + html_table_close;
+		if(!hangout_url){
+			hangout_url = gapi.hangout.getHangoutUrl();
+			event_obj.set("hangout_url", hangout_url);
+			console.log(hangout_url);
+		}
 		return event_obj.save()
-
 	}).then(function(){
 		console.log("event has been registered to parse");
+		self.ShareUserData_on_Event();
 	});
- }
+}
 
 
-function update_feed(){
-    console.log("participants added callback");
+Mixidea_Event.prototype.ShareUserData_on_Event = function(){
 
+	var self = this;
+	self.info.event_type = self.obj.event.get("event_type");
+
+	switch(self.info.event_type){
+		case "NA":
+			self.ShareUserData_on_Event_NA();
+			break;
+		case "BP":
+			self.ShareUserData_on_Event_BP();
+			break;
+		case "discussion":
+			self.ShareUserData_on_Event_discuss();
+			break;
+		default: 
+			self.ShareUserData_on_Event_NA();
+	}
+
+}
+
+Mixidea_Event.prototype.ShareUserData_on_Event_NA = function(){
+	var self = this;
+
+	var Local_Participant_Id = gapi.hangout.getLocalParticipantId();
+	console.log(" local participant id is" + Local_Participant_Id);
+
+	var participants = [];
+	var participant_role = [];
+
+	var participant_PM = self.obj.event.get("PrimeMinister");
+	if(participant_PM){
+		participants.push(participant_PM);
+		if(participant_PM.id == self.info.user_id){
+			console.log("setvalue of local participant");
+			gapi.hangout.data.setValue( "RoleID_PM", Local_Participant_Id);
+
+		}
+	}
+
+}
+
+
+Mixidea_Event.prototype.ShareUserData_on_Event_BP = function(){
+}
+
+Mixidea_Event.prototype.ShareUserData_on_Event_discussion = function(){
+}
+
+
+Mixidea_Event.prototype.UpdateMixideaStatus = function(){
+	check_hangoutid_for_each_role()
 }
 
 
@@ -56,30 +117,14 @@ function init() {
   gapi.hangout.onApiReady.add(function(e){
     console.log("hangout api ready");
     if(e.isApiReady){
+    	var mixidea_object = new Mixidea_Event();
 
-     console.log("call check user")
-     RetrieveEventInfo();
+    	gapi.hangout.data.onStateChanged.add(function(stateChangedEvent) {
+    	  	mixidea_object.UpdateMixideaStatus();
+        });
+    	
     }
   });
 
-  gapi.hangout.onParticipantsAdded.add(function(e){
-    console.log("participants added")
-  
-  });
-
-  gapi.hangout.onParticipantsChanged.add(function(e){
-    console.log("participants changed")
-    update_feed();
-  });
-
-  gapi.hangout.onParticipantsEnabled.add(function(e){
-    console.log("participants enabled")
-    update_feed();
-  });
-
-  gapi.hangout.onParticipantsDisabled.add(function(e){
-    console.log("participants disabled")
-    update_feed();
-  });
 };
 
