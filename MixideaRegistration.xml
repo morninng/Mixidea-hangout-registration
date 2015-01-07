@@ -11,24 +11,27 @@
 <script type="text/javascript" src="//plus.google.com/hangouts/_/api/v1/hangout.js">
 </script>
 
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
 <script src="//www.parsecdn.com/js/parse-1.3.2.min.js"></script>
-
-<script type="text/javascript" src="//webdemo.dac.co.jp/FlexOneStandard/mixidea_hangout/Mixidea_Registration/MixideaRegistration.js"></script>
-
 
 <script type="text/javascript" src="//webdemo.dac.co.jp/FlexOneStandard/mixidea_hangout/Mixidea_Registration/model/mixidea_user.js"></script>
 <script type="text/javascript" src="//webdemo.dac.co.jp/FlexOneStandard/mixidea_hangout/Mixidea_Registration/model/mixidea_event.js"></script>
 
+<script type="text/javascript" src="//webdemo.dac.co.jp/FlexOneStandard/mixidea_hangout/Mixidea_Registration/MixideaRegistration.js"></script>
+
+
+
 
 <body style="padding: 10px">
 
+<div id = "title"></div>
 
-<span id="feed_title"></span>  
-<h3>Event information</h3>
-<span id="event_table"></span>
-<h3></h3>
+<span id="feed"></span>  
+
 <span id="hangout_link"></span>
-<span id="website_link"></span>
+
 
 <script>
   window.onload = init(); 
