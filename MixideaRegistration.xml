@@ -12,6 +12,11 @@
 </script>
 
 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="//webdemo.dac.co.jp/FlexOneStandard/mixidea_hangout/Mixidea_Registration/MixideaRegistration.css">
+
+
+
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
 <script src="//www.parsecdn.com/js/parse-1.3.2.min.js"></script>
@@ -28,7 +33,20 @@
 
 <div id = "title"></div>
 
-<span id="feed"></span>  
+
+<div id="container_all">
+	<div id="container_left_pain">
+	</div>
+	<div id="container_center_right_pain">
+		<div id="container_center_pain">
+			<div id="personal_feed"></div>
+		</div>
+		<div id="container_right_pain">
+			<div id="common_feed"></div>  
+		</div>
+	</div>
+</div>
+
 
 <span id="hangout_link"></span>
 

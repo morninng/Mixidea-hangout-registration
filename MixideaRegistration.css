@@ -1,0 +1,31 @@
+#container_all {
+	background-color: #EEEEEE;
+	width: 1012px;
+}
+
+#container_left_pain {
+	background-color: #FFCCCC;
+	width: 400px;
+	margin: 2px;
+	float: left;
+}
+
+#container_center_right_pain{
+	background-color: #DDDDDD;
+	width: 608px;
+	float: left;
+}
+
+#container_center_pain {
+	background-color: #CCCCFF;
+	width: 300px;
+	margin: 2px;
+	float: left;
+}
+
+#container_right_pain {
+	background-color: #CCFFCC;
+	width: 300px;
+	margin: 2px;
+	float: left;
+}
