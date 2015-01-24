@@ -39,7 +39,10 @@
 	</div>
 	<div id="container_center_right_pain">
 		<div id="container_center_pain">
-			<div id="personal_feed"></div>
+			<div id="personal_feed">
+				<div id="personal_control"></div>
+				<div id="partner_message"></div>
+			</div>
 		</div>
 		<div id="container_right_pain">
 			<div id="common_feed"></div>  
