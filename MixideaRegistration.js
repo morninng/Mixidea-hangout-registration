@@ -58,25 +58,35 @@ function Mixidea_Event(){
 	this.participants_profile_EachRole = [];
 	this.feed;
 	this.canvas = gapi.hangout.layout.getVideoCanvas();
+	this.initial_setting();
 
+}
+
+Mixidea_Event.prototype.initial_setting = function(){
+
+	var self = this;
 	//initial setting 
-	this.SetEventURL();
-	this.Check_OwnRole_and_Share();
-
-	this.RetrieveParticipantsData_on_Event_NA();
-	//this.prepareDOM_ParticipantField_NA();
-
-	this.PrepareDom_forPersonalFeed();
-	this.DrawVideoFeed();
-
+	self.SetEventURL().then(function(){
+		self.Check_OwnRole_and_Share();
+		return self.RetrieveParticipantsData_on_Event_NA();
+	}).then(function(){
+		self.prepareDOM_ParticipantField_NA();
+		self.PrepareDom_forPersonalFeed()
+		self.DrawVideoFeed();
+	});
+	
 }
 
 /////////////initial setting ///////////
 
 Mixidea_Event.prototype.SetEventURL = function(){
+	console.log("SetEventURL");
 	var self = this;
+	var d = new $.Deferred;
+
 	var query_event = new Parse.Query(MixideaEvent);
 	query_event.get(self.info.event_id).then(function(event_obj){
+		console.log("get event obj");
 
 		self.obj.event = event_obj;
 		var hangout_url = event_obj.get("hangout_url");
@@ -87,15 +97,21 @@ Mixidea_Event.prototype.SetEventURL = function(){
 			console.log(hangout_url);
 		}
 		return event_obj.save();
-		
 	}).then(function(){
 		console.log("event has been registered to parse");
+		d.resolve();
+	}, function(error){
+		d.reject("Error!!");
+		console.log("error of seteventurl");
 	});
+	return d.promise();
 }
 
 Mixidea_Event.prototype.Check_OwnRole_and_Share = function(){
+	
+	console.log("check own role and share");
 	var self = this;
-	console.log(" local participant id is" + self.local.Participant_Id);
+
 	for(j=0;j<6;j++){
 		self.participants_obj[j] = self.obj.event.get(parse_role_name[j]);
 		if(self.participants_obj[j]){
@@ -108,7 +124,10 @@ Mixidea_Event.prototype.Check_OwnRole_and_Share = function(){
 }
 
 Mixidea_Event.prototype.RetrieveParticipantsData_on_Event_NA = function(){
+
+	console.log("RetrieveParticipantsData");
 	var self = this;
+	var d = new $.Deferred;
 
 	var f1 = function(){
 		if(i<6){
@@ -137,15 +156,14 @@ Mixidea_Event.prototype.RetrieveParticipantsData_on_Event_NA = function(){
 			}
 		}else if(i == 6){
 			console.log("retrieving participant object finish");
-			self.prepareDOM_ParticipantField_NA();
+			d.resolve();
 			return;
 		}
 	}
 	var i=0;
 	f1();
+	return d.promise();
 }
-
-
 
 Mixidea_Event.prototype.prepareDOM_ParticipantField_NA = function(){
 
@@ -525,17 +543,17 @@ Mixidea_Event.prototype.UpdateMixideaStatus = function(){
 		
 		//POIスピーカーのとき
 		if(hangout_shared_current_POI_speaker  == self.local.Participant_Id){
-			if(current_personalfeed_ui != "POI_speaker"){
+			if(self.local.current_personalfeed_ui != "POI_speaker"){
 				self.PrepareDom_forPersonalFeed_PoiListener_speaker();	
 			}	
 		//スピーカーのとき
 		}else if(hangout_shared_current_speaker == self.local.Participant_Id){
-			if(current_personalfeed_ui != "PoiListener_speaker"){
+			if(self.local.current_personalfeed_ui != "PoiListener_speaker"){
 				self.PrepareDom_forPersonalFeed_PoiListener_speaker();
 			}
 		//その他のAudience
 		}else{
-			if(current_personalfeed_ui != "PoiListener_Audience"){
+			if(self.local.current_personalfeed_ui != "PoiListener_Audience"){
 				self.PrepareDom_forPersonalFeed_PoiListener_Audience();	
 			}
 		}
@@ -545,29 +563,24 @@ Mixidea_Event.prototype.UpdateMixideaStatus = function(){
 	else if(hangout_shared_current_speaker  && self.hangout_id_exist(hangout_shared_current_speaker)){
 		//スピーカーのとき
 		if(hangout_shared_current_speaker == self.local.Participant_Id){
-			if(current_personalfeed_ui != "Speaker"){
+			if(self.local.current_personalfeed_ui != "Speaker"){
 				self.PrepareDom_forPersonalFeed_Speaker();
 			}
 		//その他のAudience
 		}else{
-			if(current_personalfeed_ui != "Listener"){
+			if(self.local.current_personalfeed_ui != "Listener"){
 				self.PrepareDom_forPersonalFeed_Listener();
 			}
 		}
 	}
 //Discussioモード設定するべきで、現在Speakerが設定されている
 	else{
-		if(current_personalfeed_ui != "Discussion"){
+		if(self.local.current_personalfeed_ui != "Discussion"){
 			self.PrepareDom_forPersonalFeed_Discussion();
 		}
 	}
 
-//////////update local setting/////////
-	if(hangout_shared_current_POI_speaker){
-		self.local.current_speaker = hangout_shared_current_POI_speaker;
-	}else{
-		self.local.current_speaker = hangout_shared_current_speaker;
-	}
+
 }
 
 
