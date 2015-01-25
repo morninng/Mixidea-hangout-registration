@@ -389,33 +389,55 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Listener = function(){
 	
 	var Poi_element = $("<div/>");
 	Poi_element.attr({'align': 'center'});
-	var Poi_button = $("<div/>");
-	Poi_button.attr({'align': 'center'});	
+	Poi_element.append("click here to oppose speaker<br>");
 
 	var poi_button_element = $("<button/>");
-	poi_button_element.addClass('btn btn-primary');
+	poi_button_element.addClass('btn btn-success');
 	poi_button_element.attr({'id': 'Poi'});
 	poi_button_element.append("Poi!!");
-	$("div#personal_control").append(poi_button_element);
+	Poi_element.append(poi_button_element);
+	$("div#personal_control").append(Poi_element);
 
-	$("button#Poi").click(function(){
-		console.log("poi")
-		poi_button_element.html("");
-		poi_button_element.attr({'id': 'Poi_cancel'});
-		poi_button_element.append("Cancel Poi!!");
+	$("div#personal_control").on("click","button#Poi_cancel" ,function(){
+		console.log("poi_cancel");
+		$("div#personal_control").html("");
+		
+		var Poi_element = $("<div/>");
+		Poi_element.attr({'align': 'center'});
+		Poi_element.append("click here to oppose speaker<br>");
+
+		var poi_button_element = $("<button/>");
+		poi_button_element.addClass('btn btn-success');
+		poi_button_element.attr({'id': 'Poi'});
+		poi_button_element.append("Poi!!");
+		Poi_element.append(poi_button_element);
+		$("div#personal_control").append(Poi_element);
+		gapi.hangout.data.setValue(
+			hangout_POI_role[self.local.ownrole_number], null
+		);
+	});
+
+
+	$("div#personal_control").on("click","button#Poi" ,function(){
+		console.log("poi");
+
+		$("div#personal_control").html("");
+		Poi_cancel_element = $("<div/>");
+		Poi_cancel_element.attr({'align': 'center'});
+		Poi_cancel_element.append("click here to cancel poi<br>");
+
+		var poi_cancdl_button_element = $("<button/>");
+		poi_cancdl_button_element.attr({'id': 'Poi_cancel'});
+		poi_cancdl_button_element.addClass('btn btn-primary');
+		poi_cancdl_button_element.append("Cancel Poi!!");
+		Poi_cancel_element.append(poi_cancdl_button_element);
+		$("div#personal_control").append(Poi_cancel_element);
+
 		gapi.hangout.data.setValue(
 			hangout_POI_role[self.local.ownrole_number], self.local.Participant_Id
 		);
 	});
 
-	$("button#Poi_cancel").click(function(){
-		console.log("poi_cancel");
-		poi_button_element.html("");
-		poi_button_element.attr({'id': 'Poi'});
-		gapi.hangout.data.setValue(
-			hangout_POI_role[self.local.ownrole_number], null
-		);
-	});
 
 	self.local.current_personalfeed_ui = "Listener";
 }
@@ -620,7 +642,7 @@ Mixidea_Event.prototype.ParticipantsChanged = function(changed_participants){
 	if(!self.participants_hangoutid_array ){ return;}
 
 	for(i=0;i<self.participants_hangoutid_array.length; i++){
-		console.log(participant_array[i].id);
+		console.log(self.participants_hangoutid_array[i].id);
 	}
 }
 //Enable
