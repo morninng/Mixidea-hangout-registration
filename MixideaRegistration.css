@@ -22,6 +22,17 @@
 	margin: 2px;
 	float: left;
 }
+#personal_control_1 {
+	background-color: #DDDDFF;
+	width: 280px;
+	margin: 10px;
+}
+
+#personal_control_2 {
+	background-color: #EEEEFF;
+	width: 280px;
+	margin: 10px;
+}
 
 #container_right_pain {
 	background-color: #CCFFCC;

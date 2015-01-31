@@ -1,16 +1,31 @@
-
 	var parse_role_name = new Array("PrimeMinister","LeaderOpposition","MemberGovernment","MemberOpposition","ReplyPM","LOReply");
 	var hangout_role_name = new Array("PrimeMinister","LeaderOpposition","MemberGovernment","MemberOpposition","ReplyPM","LOReply");
 	var role_button_id = new Array("btn_PrimeMinister","btn_LeaderOpposition","btn_MemberGovernment","btn_MemberOpposition","btn_ReplyPM","btn_LOReply");
 	var role_speaker = new Array("speaker_PrimeMinister","speaker_LeaderOpposition","speaker_MemberGovernment","speaker_MemberOpposition","speaker_ReplyPM","speaker_LOReply");
-
 	var hangout_POI_role = new Array("Poi_PM","Poi_LO","Poi_MG","Poi_MO","PoiRPM","Poi_LOR");
 	var poi_button_name = new Array("bt_Poi_PM","bt_Poi_LO","bt_Poi_MG","bt_Poi_MO","bt_PoiRPM","bt_Poi_LOR");
-	var hangout_POI_RoleID_Key = new Array("RoleID_PM","RoleID_LO","RoleID_MG","RoleID_MO","RoleID_RPM","RoleID_RLO");
 
 //	enum ROUND_MODE(SPEAKER, DISCUSSION,AUDIENCE,POI_TAKEN_SPEAKER, POE_TAKEN_AUDIENE, POI_SPEAKER);
 
-function check_hangoutid_for_each_role(){
+Mixidea_Event.prototype.check_hangout_Poi_status = function(){
+	for(i=0;i<6;i++){
+		var poi_status = gapi.hangout.data.getValue(hangout_POI_role[i]);
+		console.log( hangout_POI_role[i] + " status is " + poi_status);
+	}
+}
+
+Mixidea_Event.prototype.reset_hangout_Poi_status = function(){
+	gapi.hangout.data.submitDelta({
+		"Poi_PM" : "",
+		"Poi_LO" : "",
+		"Poi_MG" : "",
+		"Poi_MO" : "",
+		"PoiRPM" : "",
+		"Poi_LOR" : ""
+	});
+}
+
+Mixidea_Event.prototype.check_hangoutid_for_each_role = function(){
 
 	var PM_id = gapi.hangout.data.getValue("RoleID_PM");
 	console.log("PM_id is " + PM_id);
@@ -25,6 +40,7 @@ function check_hangoutid_for_each_role(){
 	var RLO_id = gapi.hangout.data.getValue("RoleID_RLO");
 	console.log("RLO_id is " + RLO_id);
 } 
+
 
 function Mixidea_Event(){
 
@@ -43,13 +59,14 @@ function Mixidea_Event(){
 	this.local.current_speaker = null;
 	this.local.current_personalfeed_ui = null;
 	this.local.Participant_Id = gapi.hangout.getLocalParticipantId();
+	console.log("my id is " + this.local.Participant_Id );
 	this.local.ui_mode = "";	// speaker, discussion, poi_taken_speaker, audience. poi_taken_audience
+	this.local.ownrole_number = [];
 
 	this.obj = {};	
 	this.obj.event = null;
 	this.info.event_type = "";
 	this.ownrole = [];
-	this.ownrole_number = [];
 	this.participants_hangoutid_array = [];
 	this.participants_hangoutid_array = gapi.hangout.getParticipants();
 
@@ -74,7 +91,6 @@ Mixidea_Event.prototype.initial_setting = function(){
 		self.PrepareDom_forPersonalFeed()
 		self.DrawVideoFeed();
 	});
-	
 }
 
 /////////////initial setting ///////////
@@ -117,7 +133,7 @@ Mixidea_Event.prototype.Check_OwnRole_and_Share = function(){
 		if(self.participants_obj[j]){
 			if(self.participants_obj[j].id == self.info.user_id){
 				gapi.hangout.data.setValue( hangout_role_name[j], self.local.Participant_Id);
-				self.ownrole_number.push(j);
+				self.local.ownrole_number.push(j);
 			}
 		}
 	}
@@ -133,7 +149,6 @@ Mixidea_Event.prototype.RetrieveParticipantsData_on_Event_NA = function(){
 		if(i<6){
 			self.participants_obj[i] = self.obj.event.get(parse_role_name[i]);
 			if(self.participants_obj[i]){
-				gapi.hangout.data.setValue( hangout_role_name[i], self.local.Participant_Id);
 				var user_query = new Parse.Query(MixideaUser);
 				user_query.equalTo("objectId", self.participants_obj[i].id);
 				var query_promise = user_query.find({
@@ -248,21 +263,21 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Discussion = function(){
 
 	var self = this;
 
-	$("div#personal_control").html("");
+	$("div#personal_control_1").html("");
 
 	var StartSpeech_button_elements = $("<div/>");
 	StartSpeech_button_elements.attr({'align': 'center'});
-	for(i=0;i <self.ownrole_number.length; i++){
+	for(i=0;i <self.local.ownrole_number.length; i++){
 		var one_button_element = $("<button/>");
 		one_button_element.addClass('btn btn-success');
-		one_button_element.attr({'id': role_button_id[self.ownrole_number[i]] });
-		one_button_element.append("speaker as" + hangout_role_name[self.ownrole_number[i]]);
+		one_button_element.attr({'id': role_button_id[self.local.ownrole_number[i]] });
+		one_button_element.append("speaker as" + hangout_role_name[self.local.ownrole_number[i]]);
 		StartSpeech_button_elements.append(one_button_element);	
 		StartSpeech_button_elements.append("<br><br>");	
 	}
 
-	$("div#personal_control").append("<h3>Click to be a speaker</h3>");
-	$("div#personal_control").append(StartSpeech_button_elements);
+	$("div#personal_control_1").append("<h3>Click to be a speaker</h3>");
+	$("div#personal_control_1").append(StartSpeech_button_elements);
 	
 	$("button#" + role_button_id[0] ).click(function(){
 			console.log(hangout_role_name[0])
@@ -271,6 +286,7 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Discussion = function(){
 			"CurrentSpeakerRole": hangout_role_name[0]
 			});
 			self.PrepareDom_forPersonalFeed_Speaker();
+			self.reset_hangout_Poi_status();
 	})
 	$("button#" + role_button_id[1] ).click(function(){
 			console.log(hangout_role_name[1])
@@ -279,6 +295,7 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Discussion = function(){
 			"CurrentSpeakerRole": hangout_role_name[1]
 			});
 			self.PrepareDom_forPersonalFeed_Speaker();
+			self.reset_hangout_Poi_status();
 	})
 	$("button#" + role_button_id[2] ).click(function(){
 			console.log(hangout_role_name[2])
@@ -287,6 +304,7 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Discussion = function(){
 			"CurrentSpeakerRole": hangout_role_name[2]
 			});
 			self.PrepareDom_forPersonalFeed_Speaker();
+			self.reset_hangout_Poi_status();
 	})
 	$("button#" + role_button_id[3] ).click(function(){
 			console.log(hangout_role_name[3])
@@ -295,6 +313,7 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Discussion = function(){
 			"CurrentSpeakerRole": hangout_role_name[3]
 			});
 			self.PrepareDom_forPersonalFeed_Speaker();
+			self.reset_hangout_Poi_status();
 	})
 	$("button#" + role_button_id[4] ).click(function(){
 			console.log(hangout_role_name[4])
@@ -303,6 +322,7 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Discussion = function(){
 			"CurrentSpeakerRole": hangout_role_name[4]
 			});
 			self.PrepareDom_forPersonalFeed_Speaker();
+			self.reset_hangout_Poi_status();
 	})
 	$("button#" + role_button_id[5] ).click(function(){
 			console.log(hangout_role_name[5]);
@@ -311,16 +331,16 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Discussion = function(){
 			"CurrentSpeakerRole": hangout_role_name[5]
 			});
 			self.PrepareDom_forPersonalFeed_Speaker();
+			self.reset_hangout_Poi_status();
 	})
 	self.local.current_personalfeed_ui = "Discussion";
 }
-
 
 //personal feed drawing
 Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Speaker = function(){
 
 	var self = this;
-	$("div#personal_control").html("");
+	$("div#personal_control_1").html("");
 	
 	var CompleteSpeech_elements = $("<div/>");
 	CompleteSpeech_elements.attr({'align': 'center'});
@@ -329,63 +349,72 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Speaker = function(){
 	complete_button_element.addClass('btn btn-primary');
 	complete_button_element.attr({'id': 'CompleteSpeech'});
 	complete_button_element.append("complete your speech");
-
 	CompleteSpeech_elements.append("<h3>Click to finish speach</h3>");
 	CompleteSpeech_elements.append(complete_button_element);
-	$("div#personal_control").append(CompleteSpeech_elements);
-
+	$("div#personal_control_1").append(CompleteSpeech_elements);
 	$("button#CompleteSpeech").click(function(){
 		console.log("complete speech");
 		gapi.hangout.data.submitDelta({
 			"CurrentSpeakerId": "",
 			"CurrentSpeakerName": ""
 		});
-		$("div#personal_control").html("");
+		$("div#personal_control_1").html("");
 		self.PrepareDom_forPersonalFeed_Discussion();
 	});
+	self.local.current_personalfeed_ui = "Speaker";
+}
 
+Mixidea_Event.prototype.DrawPoiTakenField_ForSpeaker = function(){
 
-	var PoiFeed_elements = $("<div/>");
-	PoiFeed_elements.attr({'align':'left'});
+	var self=this;
+
+	$("div#personal_control_2").html("");
+
+	var PoiTake_elements = $("<div/>");
+	PoiTake_elements.attr({'align':'left'});
 	var ul_poi_user_elements = $("<ul/>");
 
+	self.check_hangoutid_for_each_role();
+	var hangout_state = gapi.hangout.data.getState();
 
 	for(i=0;i <6; i++){
-		var role_flag = gapi.hangout.data.getValue(hangout_POI_role[i]);
-		if(role_flag){
+		var role_flag2 = hangout_state[hangout_POI_role[i]];
+		if(role_flag2 &&  self.hangout_id_exist(role_flag2)){
 			var poi_role_li = $("<li/>");
 			var poi_button = $("<button/>");
 			poi_button.attr({'id': poi_button_name[i]});
 			poi_button.addClass('btn btn-success');
 			poi_button.append('TakePoi');
 			poi_role_li.append(poi_button);
-			poi_role_li.append(self.participants_profile_EachRole[i].Profile_picture);
-			poi_role_li.append(self.participants_profile_EachRole[i].FirstName);
+			//poi_role_li.append(self.participants_profile_EachRole[i].Profile_picture);
+			poi_role_li.append(self.participants_profile_EachRole[i].FirstName + " ");
 			poi_role_li.append(self.participants_profile_EachRole[i].LastName);
+			poi_role_li.append("<hr color='FF0000'>");
 			ul_poi_user_elements.append(poi_role_li);
 		}
 	}
+	PoiTake_elements.append("<br>");
+	PoiTake_elements.append(ul_poi_user_elements);
 
-	//繰り返し設定予定
-
-	$("button#" + poi_button_name[0] ).click(function(){
-			console.log(poi_button_name[0]);
-			var poi_speaker_id = hangout.data.get(hangout_POI_RoleID_Key[0]);
-			gapi.hangout.data.submitDelta({
-			"CurrentPoiId": poi_speaker_id,
-			"CurrentSpeakerRole": self.participants_profile_EachRole[0].FirstName + self.participants_profile_EachRole[0].LastName
-			});
-			self.PrepareDom_forPersonalFeed_PoiListener_speaker();
-	})
-
-	self.local.current_personalfeed_ui = "Speaker";
-
+	$("div#personal_control_2").append(PoiTake_elements);
+	for(j=0;j <6; j++){
+		$("div#personal_control_2").on("click","button#" + poi_button_name[j] ,function(){
+				console.log(poi_button_name[j]);
+				var poi_speaker_id = hangout.data.get(hangout_POI_Role[j]);
+				gapi.hangout.data.submitDelta({
+				"CurrentPoiId": poi_speaker_id,
+				"CurrentSpeakerRole": self.participants_profile_EachRole[j].FirstName + self.participants_profile_EachRole[j].LastName
+				});
+				self.PrepareDom_forPersonalFeed_PoiListener_speaker();
+		})
+	}
 }
+
 //personal feed drawing
 Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Listener = function(){
 
 	var self = this;
-	$("div#personal_control").html("");
+	$("div#personal_control_1").html("");
 	
 	var Poi_element = $("<div/>");
 	Poi_element.attr({'align': 'center'});
@@ -396,12 +425,11 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Listener = function(){
 	poi_button_element.attr({'id': 'Poi'});
 	poi_button_element.append("Poi!!");
 	Poi_element.append(poi_button_element);
-	$("div#personal_control").append(Poi_element);
+	$("div#personal_control_1").append(Poi_element);
 
-	$("div#personal_control").on("click","button#Poi_cancel" ,function(){
+	$("div#personal_control_1").on("click","button#Poi_cancel" ,function(){
 		console.log("poi_cancel");
-		$("div#personal_control").html("");
-		
+		$("div#personal_control_1").html("");
 		var Poi_element = $("<div/>");
 		Poi_element.attr({'align': 'center'});
 		Poi_element.append("click here to oppose speaker<br>");
@@ -411,31 +439,35 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Listener = function(){
 		poi_button_element.attr({'id': 'Poi'});
 		poi_button_element.append("Poi!!");
 		Poi_element.append(poi_button_element);
-		$("div#personal_control").append(Poi_element);
+		$("div#personal_control_1").append(Poi_element);
+		var poi_role = hangout_POI_role[self.local.ownrole_number[0]];
+		self.check_hangout_Poi_status();
 		gapi.hangout.data.setValue(
-			hangout_POI_role[self.local.ownrole_number], null
-		);
+			poi_role , ""
+		);	
+
+		self.check_hangout_Poi_status();
 	});
 
-
-	$("div#personal_control").on("click","button#Poi" ,function(){
+	$("div#personal_control_1").on("click","button#Poi" ,function(){
 		console.log("poi");
-
-		$("div#personal_control").html("");
+		$("div#personal_control_1").html("");
 		Poi_cancel_element = $("<div/>");
 		Poi_cancel_element.attr({'align': 'center'});
 		Poi_cancel_element.append("click here to cancel poi<br>");
 
-		var poi_cancdl_button_element = $("<button/>");
-		poi_cancdl_button_element.attr({'id': 'Poi_cancel'});
-		poi_cancdl_button_element.addClass('btn btn-primary');
-		poi_cancdl_button_element.append("Cancel Poi!!");
-		Poi_cancel_element.append(poi_cancdl_button_element);
-		$("div#personal_control").append(Poi_cancel_element);
-
+		var poi_cancel_button_element = $("<button/>");
+		poi_cancel_button_element.attr({'id': 'Poi_cancel'});
+		poi_cancel_button_element.addClass('btn btn-primary');
+		poi_cancel_button_element.append("Cancel Poi!!");
+		Poi_cancel_element.append(poi_cancel_button_element);
+		$("div#personal_control_1").append(Poi_cancel_element);
+		var poi_role = hangout_POI_role[self.local.ownrole_number[0]];
+		self.check_hangout_Poi_status();
 		gapi.hangout.data.setValue(
-			hangout_POI_role[self.local.ownrole_number], self.local.Participant_Id
-		);
+			poi_role , self.local.Participant_Id
+		);		
+		self.check_hangout_Poi_status();
 	});
 
 
@@ -451,10 +483,11 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_PoiSpeaker = function(){
 Mixidea_Event.prototype.PrepareDom_forPersonalFeed_PoiListener_Audience = function(){
 	self.local.current_personalfeed_ui = "PoiListener_Audience";
 }
+
 //personal feed drawing
 Mixidea_Event.prototype.PrepareDom_forPersonalFeed_PoiListener_speaker = function(){
 	var self = this;
-	$("div#personal_control").html("");
+	$("div#personal_control_1").html("");
 	
 	var PoiFinish_elements = $("<div/>");
 	PoiFinish_elements.attr({'align': 'center'});
@@ -464,18 +497,18 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_PoiListener_speaker = functio
 	PoiFinish_button_element.attr({'id': 'PoiFinish'});
 	PoiFinish_button_element.append("Close Poi Speech");
 
-	PoiFinish_elements.append("<h3>Click to Close Poi speach</h3>");
+	PoiFinish_elements.append("<h3>Click to Close Poi speech</h3>");
 	PoiFinish_elements.append(PoiFinish_button_element);
-	$("div#personal_control").append(PoiFinish_elements);
+	$("div#personal_control_1").append(PoiFinish_elements);
 
 	$("button#PoiFinish").click(function(){
 		console.log("Close Poi speech");
 		gapi.hangout.data.submitDelta({
-		"CurrentPoiId": null,
-		"CurrentSpeakerRole": null
+		"CurrentPoiId": "",
+		"CurrentSpeakerRole": ""
 		});
 
-		$("div#personal_control").html("");
+		$("div#personal_control_1").html("");
 		self.PrepareDom_forPersonalFeed_Speaker();
 	})
 	
@@ -512,7 +545,6 @@ Mixidea_Event.prototype.RetrieveParticipantsData_on_Event_BP = function(){
 }
 Mixidea_Event.prototype.RetrieveParticipantsData_on_Event_discussion = function(){
 }
-
 Mixidea_Event.prototype.hangout_id_exist = function(in_id){
 
 	self = this;
@@ -529,6 +561,11 @@ Mixidea_Event.prototype.hangout_id_exist = function(in_id){
 Mixidea_Event.prototype.UpdateMixideaStatus = function(){
 
 	self = this;
+	var hangout_status = gapi.hangout.data.getState();
+	console.log("hangout_status");
+	console.log(JSON.stringify(hangout_status));
+
+	var poi_speaker = hangout_status['CurrentPoiId'];
 	var hangout_shared_current_POI_speaker = gapi.hangout.data.getValue('CurrentPoiId');
 	var hangout_shared_current_speaker = gapi.hangout.data.getValue('CurrentSpeakerId');
 
@@ -602,12 +639,13 @@ Mixidea_Event.prototype.UpdateMixideaStatus = function(){
 		}
 	}
 
-
+/////////////////Take  POI//////////////////////
+	if(self.local.current_speaker == hangout_shared_current_speaker && hangout_shared_current_speaker == self.local.Participant_Id){
+		self.DrawPoiTakenField_ForSpeaker();
+	}
 }
 
-
 //add
-
 Mixidea_Event.prototype.ParticipantsAdded = function(added_participants){
 
 	console.log(" participant added");
