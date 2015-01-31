@@ -359,6 +359,7 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Speaker = function(){
 			"CurrentSpeakerName": ""
 		});
 		$("div#personal_control_1").html("");
+		$("div#personal_control_2").html("");
 		self.PrepareDom_forPersonalFeed_Discussion();
 	});
 	self.local.current_personalfeed_ui = "Speaker";
@@ -387,7 +388,7 @@ Mixidea_Event.prototype.DrawPoiTakenField_ForSpeaker = function(){
 			poi_button.append('TakePoi');
 			poi_role_li.append(poi_button);
 			//poi_role_li.append(self.participants_profile_EachRole[i].Profile_picture);
-			poi_role_li.append(self.participants_profile_EachRole[i].FirstName + " ");
+			poi_role_li.append(" " + self.participants_profile_EachRole[i].FirstName + " ");
 			poi_role_li.append(self.participants_profile_EachRole[i].LastName);
 			poi_role_li.append("<hr color='FF0000'>");
 			ul_poi_user_elements.append(poi_role_li);
@@ -397,17 +398,81 @@ Mixidea_Event.prototype.DrawPoiTakenField_ForSpeaker = function(){
 	PoiTake_elements.append(ul_poi_user_elements);
 
 	$("div#personal_control_2").append(PoiTake_elements);
-	for(j=0;j <6; j++){
-		$("div#personal_control_2").on("click","button#" + poi_button_name[j] ,function(){
-				console.log(poi_button_name[j]);
-				var poi_speaker_id = hangout.data.get(hangout_POI_Role[j]);
-				gapi.hangout.data.submitDelta({
-				"CurrentPoiId": poi_speaker_id,
-				"CurrentSpeakerRole": self.participants_profile_EachRole[j].FirstName + self.participants_profile_EachRole[j].LastName
-				});
-				self.PrepareDom_forPersonalFeed_PoiListener_speaker();
-		})
-	}
+
+
+
+	$("div#personal_control_2").on("click","button#" + poi_button_name[0] ,function(){
+			console.log(poi_button_name[0]);
+			var poi_speaker_id = gapi.hangout.data.getValue("Poi_PM");
+			gapi.hangout.data.submitDelta({
+			"CurrentPoiId": poi_speaker_id,
+			"CurrentSpeakerRole": self.participants_profile_EachRole[0].FirstName + self.participants_profile_EachRole[0].LastName
+			});
+			$("div#personal_control_2").html("");
+			self.reset_hangout_Poi_status();
+			self.PrepareDom_forPersonalFeed_PoiListener_speaker();
+	})
+
+	$("div#personal_control_2").on("click","button#" + poi_button_name[1] ,function(){
+			console.log(poi_button_name[1]);
+			var poi_speaker_id = gapi.hangout.data.getValue("Poi_LO");
+			gapi.hangout.data.submitDelta({
+			"CurrentPoiId": poi_speaker_id,
+			"CurrentSpeakerRole": self.participants_profile_EachRole[1].FirstName + self.participants_profile_EachRole[1].LastName
+			});
+			$("div#personal_control_2").html("");
+			self.reset_hangout_Poi_status();
+			self.PrepareDom_forPersonalFeed_PoiListener_speaker();
+	})
+
+	$("div#personal_control_2").on("click","button#" + poi_button_name[2] ,function(){
+			console.log(poi_button_name[2]);
+			var poi_speaker_id = gapi.hangout.data.getValue("Poi_MG");
+			gapi.hangout.data.submitDelta({
+			"CurrentPoiId": poi_speaker_id,
+			"CurrentSpeakerRole": self.participants_profile_EachRole[2].FirstName + self.participants_profile_EachRole[2].LastName
+			});
+			$("div#personal_control_2").html("");
+			self.reset_hangout_Poi_status();
+			self.PrepareDom_forPersonalFeed_PoiListener_speaker();
+	})
+
+	$("div#personal_control_2").on("click","button#" + poi_button_name[3] ,function(){
+			console.log(poi_button_name[3]);
+			var poi_speaker_id = gapi.hangout.data.getValue("Poi_MO");
+			gapi.hangout.data.submitDelta({
+			"CurrentPoiId": poi_speaker_id,
+			"CurrentSpeakerRole": self.participants_profile_EachRole[3].FirstName + self.participants_profile_EachRole[3].LastName
+			});
+			$("div#personal_control_2").html("");
+			self.reset_hangout_Poi_status();
+			self.PrepareDom_forPersonalFeed_PoiListener_speaker();
+	})
+
+	$("div#personal_control_2").on("click","button#" + poi_button_name[4] ,function(){
+			console.log(poi_button_name[4]);
+			var poi_speaker_id = gapi.hangout.data.getValue("PoiRPM");
+			gapi.hangout.data.submitDelta({
+			"CurrentPoiId": poi_speaker_id,
+			"CurrentSpeakerRole": self.participants_profile_EachRole[4].FirstName + self.participants_profile_EachRole[4].LastName
+			});
+			$("div#personal_control_2").html("");
+			self.reset_hangout_Poi_status();
+			self.PrepareDom_forPersonalFeed_PoiListener_speaker();
+	})
+
+	$("div#personal_control_2").on("click","button#" + poi_button_name[5] ,function(){
+			console.log(poi_button_name[5]);
+			var poi_speaker_id = gapi.hangout.data.getValue("Poi_LOR");
+			gapi.hangout.data.submitDelta({
+			"CurrentPoiId": poi_speaker_id,
+			"CurrentSpeakerRole": self.participants_profile_EachRole[5].FirstName + self.participants_profile_EachRole[5].LastName
+			});
+			$("div#personal_control_2").html("");
+			self.reset_hangout_Poi_status();
+			self.PrepareDom_forPersonalFeed_PoiListener_speaker();
+	})
+
 }
 
 //personal feed drawing
@@ -476,17 +541,28 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_Listener = function(){
 
 //personal feed drawing
 Mixidea_Event.prototype.PrepareDom_forPersonalFeed_PoiSpeaker = function(){
-	self.local.current_personalfeed_ui = "PoiSpeaker";
 
+	$("div#personal_control_1").html("");
+	$("div#personal_control_2").html("");
+	self.local.current_personalfeed_ui = "PoiSpeaker";
 }
 //personal feed drawing
 Mixidea_Event.prototype.PrepareDom_forPersonalFeed_PoiListener_Audience = function(){
+	var self = this;
+	self.PrepareDom_for_ClosePoi();
 	self.local.current_personalfeed_ui = "PoiListener_Audience";
 }
 
 //personal feed drawing
 Mixidea_Event.prototype.PrepareDom_forPersonalFeed_PoiListener_speaker = function(){
 	var self = this;
+	self.PrepareDom_for_ClosePoi();
+	self.local.current_personalfeed_ui = "PoiListener_speaker ";
+}
+
+
+Mixidea_Event.prototype.PrepareDom_for_ClosePoi = function(){
+
 	$("div#personal_control_1").html("");
 	
 	var PoiFinish_elements = $("<div/>");
@@ -511,10 +587,9 @@ Mixidea_Event.prototype.PrepareDom_forPersonalFeed_PoiListener_speaker = functio
 		$("div#personal_control_1").html("");
 		self.PrepareDom_forPersonalFeed_Speaker();
 	})
-	
-	self.local.current_personalfeed_ui = "PoiListener_speaker ";
-
 }
+
+
 
 //video feed
 Mixidea_Event.prototype.DrawVideoFeed = function(){
@@ -603,7 +678,7 @@ Mixidea_Event.prototype.UpdateMixideaStatus = function(){
 		//POIスピーカーのとき
 		if(hangout_shared_current_POI_speaker  == self.local.Participant_Id){
 			if(self.local.current_personalfeed_ui != "POI_speaker"){
-				self.PrepareDom_forPersonalFeed_PoiListener_speaker();	
+				self.PrepareDom_forPersonalFeed_PoiSpeaker();	
 			}	
 		//スピーカーのとき
 		}else if(hangout_shared_current_speaker == self.local.Participant_Id){
