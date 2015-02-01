@@ -34,8 +34,10 @@
 <div id = "title"></div>
 
 
-<div id="container_all">
+<div id="container_main">
 	<div id="container_left_pain">
+		<div id="speech_status"></div>
+		<div id="speech_time"></div>
 	</div>
 	<div id="container_center_right_pain">
 		<div id="container_center_pain">

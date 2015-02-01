@@ -1,9 +1,16 @@
-#container_all {
+#container_main {
 	background-color: #EEEEEE;
 	width: 1012px;
 }
 
 #container_left_pain {
+	background-color: #FFCCCC;
+	width: 400px;
+	margin: 2px;
+	float: left;
+}
+
+#speech_status {
 	background-color: #FFCCCC;
 	width: 400px;
 	margin: 2px;
