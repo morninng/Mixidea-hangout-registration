@@ -589,7 +589,7 @@ Mixidea_Event.prototype.PrepareDom_for_ClosePoi = function(){
 		console.log("Close Poi speech");
 		gapi.hangout.data.submitDelta({
 		"CurrentPoiId": "",
-		"CurrentSpeakerRole": ""
+		"CurrentPoiSpeakerName": ""
 		});
 
 		$("div#personal_control_1").html("");
@@ -607,14 +607,21 @@ Mixidea_Event.prototype.DrawVideoFeed = function(){
 	if(hangout_shared_current_POI_speaker && self.hangout_id_exist(hangout_shared_current_POI_speaker)){
 		self.feed = gapi.hangout.layout.createParticipantVideoFeed(hangout_shared_current_POI_speaker);
 		self.local.current_speaker = hangout_shared_current_POI_speaker;
+		var speech_mode = "Poi :";
+		var speaker_name = gapi.hangout.data.getValue('CurrentPoiSpeakerName');
+		$("div#speech_status").html("<strong><h2>" + speech_mode + speaker_name+ "</strong></h2>");
 
 
 	}else if(hangout_shared_current_speaker  && self.hangout_id_exist(hangout_shared_current_speaker)){
 			self.feed = gapi.hangout.layout.createParticipantVideoFeed(hangout_shared_current_speaker);
 			self.local.current_speaker = hangout_shared_current_speaker;
+			var speaker_role = gapi.hangout.data.getValue('CurrentSpeakerRole');
+			var speaker_name = gapi.hangout.data.getValue('CurrentSpeakerName');
+			$("div#speech_status").html("<strong><h2>" + speaker_role + ": " + speaker_name + "</strong></h2>");
 	}else{
 		self.feed = gapi.hangout.layout.getDefaultVideoFeed();
 		self.local.current_speaker = null;
+		$("div#speech_status").html("<strong><h2>Discussion mode</strong></h2>");
 	}
 
  	self.canvas.setVideoFeed(self.feed);
