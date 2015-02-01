@@ -26,9 +26,6 @@ Mixidea_Event.prototype.reset_hangout_Poi_status = function(){
 }
 
 
-
-
-
 Mixidea_Event.prototype.check_hangoutid_for_each_role = function(){
 
 	var PM_id = gapi.hangout.data.getValue("RoleID_PM");
@@ -80,6 +77,8 @@ function Mixidea_Event(){
 	this.feed;
 	this.canvas = gapi.hangout.layout.getVideoCanvas();
 	this.initial_setting();
+	this.speech_duration = 0;
+	this.speech_timer = [];
 
 }
 
@@ -410,8 +409,6 @@ Mixidea_Event.prototype.DrawPoiTakenField_ForSpeaker = function(){
 
 	$("div#personal_control_2").append(PoiTake_elements);
 
-
-
 	$("div#personal_control_2").on("click","button#" + poi_button_name[0] ,function(){
 			console.log(poi_button_name[0]);
 			var poi_speaker_id = gapi.hangout.data.getValue("Poi_PM");
@@ -600,8 +597,6 @@ Mixidea_Event.prototype.PrepareDom_for_ClosePoi = function(){
 	})
 }
 
-
-
 //video feed
 Mixidea_Event.prototype.DrawVideoFeed = function(){
 
@@ -627,12 +622,8 @@ Mixidea_Event.prototype.DrawVideoFeed = function(){
  	self.canvas.setPosition(10,100);
  	self.canvas.setVisible(true);
 }
-Mixidea_Event.prototype.RetrieveParticipantsData_on_Event_BP = function(){
-}
-Mixidea_Event.prototype.RetrieveParticipantsData_on_Event_discussion = function(){
-}
-Mixidea_Event.prototype.hangout_id_exist = function(in_id){
 
+Mixidea_Event.prototype.hangout_id_exist = function(in_id){
 	self = this;
 	var i = 0;
 	for(i=0;i<self.participants_hangoutid_array.length; i++){
@@ -641,7 +632,26 @@ Mixidea_Event.prototype.hangout_id_exist = function(in_id){
 		}
 	}
 	return false;
+}
 
+Mixidea_Event.prototype.showTimer = function(){
+	self.speech_duration++;
+	var duration_mod = self.speech_duration % 60;
+	var minutes = (self.speech_duration - duration_mod)/60;
+	var second = duration_mod;
+	var timer_msg = "time spent   " + minutes + "min " + second + "sec";
+	$("div#speech_time").html(timer_msg);
+}
+
+Mixidea_Event.prototype.StopTimer = function(){
+	self.speech_duration = 0;
+	var i;
+	for(i=0;i<self.speech_timer.length;i++){
+		clearInterval(self.speech_timer[i]);
+		console.log("speech timer is stopped with id = " + self.speech_timer[i]);
+		self.speech_timer.splice(i,1);
+	}
+	$("div#speech_time").html("");
 }
 
 Mixidea_Event.prototype.UpdateMixideaStatus = function(){
@@ -677,6 +687,11 @@ Mixidea_Event.prototype.UpdateMixideaStatus = function(){
 			var speaker_role = gapi.hangout.data.getValue('CurrentSpeakerRole');
 			var speaker_name = gapi.hangout.data.getValue('CurrentSpeakerName');
 			$("div#speech_status").html("<strong><h2>" + speaker_role + ": " + speaker_name + "</strong></h2>");
+
+			if(!self.speech_timer[0]){
+				self.speech_timer.push(setInterval("self.showTimer()",1000));
+				console.log("speech timer is set with id = " + self.speech_timer);
+			}
 		}
 	}
 //Discussioモード設定するべきで、現在Speakerが設定されている
@@ -686,6 +701,8 @@ Mixidea_Event.prototype.UpdateMixideaStatus = function(){
 			self.local.current_speaker = null;
 			self.canvas.setVideoFeed(self.feed);
 			$("div#speech_status").html("<strong><h2>Discussion mode</strong></h2>");
+
+			self.StopTimer();
 		}
 	}
 
