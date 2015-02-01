@@ -79,6 +79,7 @@ function Mixidea_Event(){
 	this.initial_setting();
 	this.speech_duration = 0;
 	this.speech_timer = [];
+	this.event_title = "";
 
 }
 
@@ -88,6 +89,7 @@ Mixidea_Event.prototype.initial_setting = function(){
 	//initial setting 
 	self.SetEventURL().then(function(){
 		self.Check_OwnRole_and_Share();
+		self.Draw_EventTitle();
 		return self.RetrieveParticipantsData_on_Event_NA();
 	}).then(function(){
 		self.prepareDOM_ParticipantField_NA();
@@ -124,6 +126,47 @@ Mixidea_Event.prototype.SetEventURL = function(){
 		console.log("error of seteventurl");
 	});
 	return d.promise();
+}
+
+
+Mixidea_Event.prototype.Draw_EventTitle = function(){
+	var self = this;
+
+	self.event_title = self.obj.event.get("title");
+	$("div#event_left").append("<strong><h4>Motion : " + self.event_title + "</h4></strong>");
+
+	var update_motion_button = $("<button/>");
+	update_motion_button.attr({'id':"update_motion"});
+	update_motion_button.append("update motion");
+	$("div#event_right").append(update_motion_button);
+
+
+	$("div#event_right").on("click","button#update_motion" ,function(){
+
+		var input_element =  $("<input/>");
+		input_element.attr({'type':'text'});
+		input_element.attr({'value':self.event_title});
+		$("div#event_left").html(input_element);
+
+		var update_execution_button = $("<button/>");
+		update_execution_button.attr({'id':"event_update_execution"});
+		update_execution_button.attr({'float':"left"});
+		update_execution_button.append("apply");
+
+		var update_cancel_button = $("<button/>");
+		update_cancel_button.attr({'id':"event_update_cancel"});
+		update_cancel_button.attr({'float':"left"});
+		update_cancel_button.append("cancel");
+
+		$("div#event_right").html("");
+		$("div#event_right").append(update_execution_button);
+		$("div#event_right").append(update_cancel_button);
+	})
+
+
+
+
+
 }
 
 Mixidea_Event.prototype.Check_OwnRole_and_Share = function(){
@@ -609,7 +652,7 @@ Mixidea_Event.prototype.DrawVideoFeed = function(){
 		self.local.current_speaker = hangout_shared_current_POI_speaker;
 		var speech_mode = "Poi :";
 		var speaker_name = gapi.hangout.data.getValue('CurrentPoiSpeakerName');
-		$("div#speech_status").html("<strong><h2>" + speech_mode + speaker_name+ "</strong></h2>");
+		$("div#speech_status").html("<strong><h3>" + speech_mode + speaker_name+ "</h3></strong>");
 
 
 	}else if(hangout_shared_current_speaker  && self.hangout_id_exist(hangout_shared_current_speaker)){
@@ -617,16 +660,22 @@ Mixidea_Event.prototype.DrawVideoFeed = function(){
 			self.local.current_speaker = hangout_shared_current_speaker;
 			var speaker_role = gapi.hangout.data.getValue('CurrentSpeakerRole');
 			var speaker_name = gapi.hangout.data.getValue('CurrentSpeakerName');
-			$("div#speech_status").html("<strong><h2>" + speaker_role + ": " + speaker_name + "</strong></h2>");
+			$("div#speech_status").html("<strong><h3>" + speaker_role + ": " + speaker_name + "</h3></strong>");
 	}else{
 		self.feed = gapi.hangout.layout.getDefaultVideoFeed();
 		self.local.current_speaker = null;
 		$("div#speech_status").html("<strong><h2>Discussion mode</strong></h2>");
 	}
-
+	var height_title = $("div#event-title").height() ;
+	var height_status = $("div#speech_status").height();
+	var height_time = $("div#speech_time").height(); 
+	console.log("height title = " + height_title); 
+	console.log("height status = " + height_status); 
+	console.log("height time = " + height_time);
+	var height_all = height_title + height_status + height_time;
  	self.canvas.setVideoFeed(self.feed);
  	self.canvas.setWidth(400);
- 	self.canvas.setPosition(10,100);
+ 	self.canvas.setPosition(10,height_all + 60);
  	self.canvas.setVisible(true);
 }
 

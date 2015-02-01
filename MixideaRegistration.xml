@@ -31,8 +31,10 @@
 
 <body style="padding: 10px">
 
-<div id = "title"></div>
-
+<div id = "event-title">
+	<div id = "event_left"></div>
+	<div id = "event_right"></div>
+</div>
 
 <div id="container_main">
 	<div id="container_left_pain">

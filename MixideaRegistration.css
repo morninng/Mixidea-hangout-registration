@@ -3,6 +3,27 @@
 	width: 1012px;
 }
 
+#event-title{
+	width: 1012px;
+	border-style: solid;
+	border-width: thin;
+	overflow: auto; 
+	position: relative;
+}
+
+#event_left{
+	width: 850px;
+	float: left;
+}
+
+#event_right{
+	width: 120px;
+	left: 850px;
+    position: absolute;
+    top: 50%;
+    margin-top: -0.5em;
+}
+
 #container_left_pain {
 	background-color: #FFCCCC;
 	width: 400px;
