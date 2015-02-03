@@ -71,6 +71,12 @@ function Mixidea_Event(){
 	this.participants_hangoutid_array = [];
 	this.participants_hangoutid_array = gapi.hangout.getParticipants();
 
+	this.title_count = 0;
+	var current_title_count = Number(gapi.hangout.data.getValue('title_count'));
+	if(current_title_count){
+		this.title_count = current_title_count;
+	}
+
 	this.participants_obj = [];
 	this.participant_role = [];
 	this.participants_profile_EachRole = [];
@@ -130,23 +136,23 @@ Mixidea_Event.prototype.SetEventURL = function(){
 
 
 Mixidea_Event.prototype.Draw_EventTitle = function(){
+
 	var self = this;
-
-	self.event_title = self.obj.event.get("title");
-	$("div#event_left").append("<strong><h4>Motion : " + self.event_title + "</h4></strong>");
-
-	var update_motion_button = $("<button/>");
-	update_motion_button.attr({'id':"update_motion"});
-	update_motion_button.append("update motion");
-	$("div#event_right").append(update_motion_button);
-
+	self.Display_event_title_default();
 
 	$("div#event_right").on("click","button#update_motion" ,function(){
 
+		var form_element = $("<form/>");
+		form_element.attr({'name':'form_event_title'});
+		form_element.attr({'id':'form_event'});
+
+
 		var input_element =  $("<input/>");
 		input_element.attr({'type':'text'});
+		input_element.attr({'id':'event_title_input'});
 		input_element.attr({'value':self.event_title});
-		$("div#event_left").html(input_element);
+		form_element.append(input_element);
+		$("div#event_left").html(form_element);
 
 		var update_execution_button = $("<button/>");
 		update_execution_button.attr({'id':"event_update_execution"});
@@ -163,11 +169,39 @@ Mixidea_Event.prototype.Draw_EventTitle = function(){
 		$("div#event_right").append(update_cancel_button);
 	})
 
+	$("div#event_right").on("click","button#event_update_cancel" ,function(){
+		self.Display_event_title_default();
+	})
+	$("div#event_right").on("click","button#event_update_execution" ,function(){
+		 var event_title_string = document.forms.form_event.event_title_input.value;
+		 console.log(event_title_string);
 
+		 self.obj.event.fetch().then(function(event_obj){
+		 	event_obj.set("title",event_title_string);
+		 	return event_obj.save()
+		 }).then(function(){
+		 	var count_up = self.title_count +1;
+		 	var title_count_up = String(count_up);
+			gapi.hangout.data.setValue("title_count", title_count_up);
+		 });
 
+	})
+}
 
+Mixidea_Event.prototype.Display_event_title_default = function(){
+	var self = this;
+
+	self.event_title = self.obj.event.get("title");
+	$("div#event_left").html("<strong><h4>Motion : " + self.event_title + "</h4></strong>");
+
+	var update_motion_button = $("<button/>");
+	update_motion_button.attr({'id':"update_motion"});
+	update_motion_button.append("update motion");
+	$("div#event_right").html(update_motion_button);
 
 }
+
+
 
 Mixidea_Event.prototype.Check_OwnRole_and_Share = function(){
 	
@@ -809,6 +843,21 @@ Mixidea_Event.prototype.UpdateMixideaStatus = function(){
 	if(self.local.current_speaker == hangout_shared_current_speaker && hangout_shared_current_speaker == self.local.Participant_Id){
 		self.DrawPoiTakenField_ForSpeaker();
 	}
+
+//////////////update event title/////
+	var current_title_count = Number(gapi.hangout.data.getValue('title_count'));
+	if (self.title_count != current_title_count){
+
+		self.obj.event.fetch().then(function(event_obj){
+			self.obj.event = event_obj;
+			self.Display_event_title_default();
+			if(current_title_count){
+				self.title_count = current_title_count;
+			}
+		});
+	}
+
+
 }
 
 //add

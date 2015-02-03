@@ -15,6 +15,9 @@
 	width: 850px;
 	float: left;
 }
+#event_title_input{
+	width: 850px;
+}
 
 #event_right{
 	width: 120px;
