@@ -341,7 +341,7 @@ Mixidea_Event.prototype.prepareDOM_ParticipantField_NA = function(){
 	table_element.append(third_row);
 
 	participant_container.append(table_element);
-	$("div#common_feed").append(participant_container);
+	$("div#common_feed").html(participant_container);
 
 }
 
@@ -880,34 +880,10 @@ Mixidea_Event.prototype.UpdateMixideaStatus = function(){
 			}
 		});
 	}
-
-
 }
 
-//add
-Mixidea_Event.prototype.ParticipantsAdded = function(added_participants){
 
-	console.log(" participant added");
-	var participant_array = added_participants.participants;
 
-	if(!participant_array){ return;}
-
-	for(i=0;i<participant_array.length; i++){
-		console.log(participant_array[i].id);
-	}
-}
-//remove
-
-Mixidea_Event.prototype.ParticipantsRemoved = function(removed_participants){
-	console.log(" participant removed");
-	var participant_array = removed_participants.participants;
-
-	if(!participant_array){ return;}
-
-	for(i=0;i<participant_array.length; i++){
-		console.log(participant_array[i].id);
-	}
-}
 //change
 
 Mixidea_Event.prototype.ParticipantsChanged = function(changed_participants){
@@ -921,29 +897,12 @@ Mixidea_Event.prototype.ParticipantsChanged = function(changed_participants){
 	for(i=0;i<self.participants_hangoutid_array.length; i++){
 		console.log(self.participants_hangoutid_array[i].id);
 	}
-}
-//Enable
-Mixidea_Event.prototype.EnableParticipants = function(enabled_participants){
+	//update participant field
 
-	console.log(" participant enabled");
-	var enabled_participant_array = enabled_participants.enabledParticipants;
-	for(i=0;i<enabled_participant_array.length; i++){
-		console.log(enabled_participant_array[i].id);
-	}
-}
-
-
-//disable
-Mixidea_Event.prototype.ParticipantsDisabled = function(disabled_participants){
-
-	console.log("participant disabled");
-	var participant_array = disabled_participants.participants;
-
-	if(!participant_array){ return;}
-
-	for(i=0;i<participant_array.length; i++){
-		console.log(participant_array[i].id);
-	}
+	self.Check_OwnRole_and_Share();
+	self.RetrieveParticipantsData_on_Event_NA().then(function(){
+		self.prepareDOM_ParticipantField_NA();
+	});
 }
 
 
@@ -956,24 +915,8 @@ function init() {
     	  	mixidea_object.UpdateMixideaStatus(event);
         });
 
-        gapi.hangout.onParticipantsAdded.add(function(participant_add) {
-          mixidea_object.ParticipantsAdded(participant_add);
-        });
-
-        gapi.hangout.onParticipantsRemoved.add(function(participant_removed) {
-          mixidea_object.ParticipantsRemoved(participant_removed);
-        });
-
         gapi.hangout.onParticipantsChanged.add(function(participant_change) {
           mixidea_object.ParticipantsChanged(participant_change);
-        });
-
-        gapi.hangout.onEnabledParticipantsChanged.add(function(enabled_participant) {
-          mixidea_object.EnableParticipants(enabled_participant);
-        });
-
-        gapi.hangout.onParticipantsDisabled.add(function(disabled_participant) {
-          mixidea_object.ParticipantsDisabled(disabled_participant);
         });
     }
   });
