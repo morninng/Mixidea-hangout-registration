@@ -63,6 +63,10 @@ function Mixidea_Event(){
 	console.log("my id is " + this.local.Participant_Id );
 	this.local.ui_mode = "";	// speaker, discussion, poi_taken_speaker, audience. poi_taken_audience
 	this.local.ownrole_number = [];
+	this.local.complete_count = Number(gapi.hangout.data.getValue("complete_count"));
+	if(!this.local.complete_count){
+		this.local.complete_count = 0;
+	}
 
 	this.obj = {};	
 	this.obj.event = null;
@@ -101,6 +105,7 @@ Mixidea_Event.prototype.initial_setting = function(){
 		self.prepareDOM_ParticipantField_NA();
 		self.PrepareDom_forPersonalFeed()
 		self.DrawVideoFeed();
+		self.init_setting_comoplete();
 	});
 }
 
@@ -207,6 +212,8 @@ Mixidea_Event.prototype.Check_OwnRole_and_Share = function(){
 	
 	console.log("check own role and share");
 	var self = this;
+
+	self.local.ownrole_number.splice(0);
 
 	for(j=0;j<6;j++){
 		self.participants_obj[j] = self.obj.event.get(parse_role_name[j]);
@@ -737,6 +744,19 @@ Mixidea_Event.prototype.DrawVideoFeed = function(){
  	self.canvas.setVisible(true);
 }
 
+
+Mixidea_Event.prototype.init_setting_comoplete = function(){
+
+
+	var complete_count = gapi.hangout.data.getValue("complete_count");
+	var num_count = Number(complete_count);
+	num_count++;
+	complete_count = String(num_count);
+	gapi.hangout.data.setValue("complete_count", complete_count);
+
+}
+
+
 Mixidea_Event.prototype.hangout_id_exist = function(in_id){
 	self = this;
 	var i = 0;
@@ -747,6 +767,11 @@ Mixidea_Event.prototype.hangout_id_exist = function(in_id){
 	}
 	return false;
 }
+
+
+
+
+
 
 Mixidea_Event.prototype.showTimer = function(){
 	self.speech_duration++;
@@ -880,6 +905,14 @@ Mixidea_Event.prototype.UpdateMixideaStatus = function(){
 			}
 		});
 	}
+
+	/////////initialization of the participant has been finished ///////////
+
+	var current_complete_cuont = Number(gapi.hangout.data.getValue("complete_count"));
+	if(self.local.complete_count != current_complete_cuont){
+		self.prepareDOM_ParticipantField_NA();
+	}
+	
 }
 
 
