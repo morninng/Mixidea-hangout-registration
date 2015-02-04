@@ -235,7 +235,8 @@ Mixidea_Event.prototype.RetrieveParticipantsData_on_Event_NA = function(){
 					success: function(participant_o){
 						self.participants_profile_EachRole[i] = {"FirstName":participant_o[0].get("FirstName"),
 										   "LastName":participant_o[0].get("LastName"),
-										   "Profile_picture":participant_o[0].get("Profile_picture")
+										   "Profile_picture":participant_o[0].get("Profile_picture"),
+											"existence_flag": true
 										   };
 						i++;
 					}
@@ -244,7 +245,8 @@ Mixidea_Event.prototype.RetrieveParticipantsData_on_Event_NA = function(){
 			}else{
 				self.participants_profile_EachRole[i] = {"FirstName":"no one apply",
 										"LastName":"-",
-										"Profile_picture":"#"
+										"Profile_picture":"#",
+										"existence_flag": false
 										};
 				i++;
 				f1();
@@ -274,14 +276,36 @@ Mixidea_Event.prototype.prepareDOM_ParticipantField_NA = function(){
 
 	for(i=0;i<6;i++){
 		eachfeed_td[i] = $("<td>");
-		eachfeed_element[i] = $("<div>");
-		eachfeed_element[i].attr({'id': role_name[i]});
-		profile_pict_element[i] = $("<img>");
-		profile_pict_element[i].attr({'src': self.participants_profile_EachRole[i].Profile_picture});
-		profile_name_element[i] = $("<p>");
-		profile_name_element[i].append( self.participants_profile_EachRole[i].FirstName + self.participants_profile_EachRole[i].LastName );
-		eachfeed_element[i].append(profile_pict_element[i]);
-		eachfeed_element[i].append(profile_name_element[i]);
+
+
+
+		if(self.participants_profile_EachRole[i].existence_flag){
+
+			eachfeed_element[i] = $("<div>");
+			eachfeed_element[i].attr({'id': role_name[i]});
+			profile_pict_element[i] = $("<img>");
+			profile_pict_element[i].attr({'src': self.participants_profile_EachRole[i].Profile_picture});
+			profile_name_element[i] = $("<p>");
+			profile_name_element[i].append( self.participants_profile_EachRole[i].FirstName + self.participants_profile_EachRole[i].LastName );
+			
+			var role_identifier = gapi.hangout.data.getValue( hangout_role_name[i] );
+			if(role_identifier && self.hangout_id_exist(role_identifier)){
+				eachfeed_td[i].attr({'bgcolor': '99CC00'});
+			}else{
+				profile_name_element[i].append("<br>not yet login"); 
+				eachfeed_td[i].attr({'bgcolor': 'C0C0C0'});
+			}
+			eachfeed_element[i].append(profile_pict_element[i]);
+			eachfeed_element[i].append(profile_name_element[i]);
+
+		}else{
+			eachfeed_td[i].attr({'bgcolor': '808080'});
+			eachfeed_element[i] = $("<div>");
+			eachfeed_element[i].attr({'id': role_name[i]});
+			eachfeed_element[i].append("no one has applied");
+
+		}
+
 		eachfeed_td[i].append(eachfeed_element[i]);
 		console.dirxml(eachfeed_td[i]);
 	}
@@ -474,7 +498,7 @@ Mixidea_Event.prototype.DrawPoiTakenField_ForSpeaker = function(){
 			poi_button.addClass('btn btn-success');
 			poi_button.append('TakePoi');
 			poi_role_li.append(poi_button);
-			//poi_role_li.append(self.participants_profile_EachRole[i].Profile_picture);
+
 			poi_role_li.append(" " + self.participants_profile_EachRole[i].FirstName + " ");
 			poi_role_li.append(self.participants_profile_EachRole[i].LastName);
 			poi_role_li.append("<hr color='FF0000'>");
